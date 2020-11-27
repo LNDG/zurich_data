@@ -1,18 +1,17 @@
 #!/bin/bash
-# Runs pyddm (and hddm) on separate node on the cluster
 
-echo "#!/bin/bash" > jobfile.sh
-echo "#SBATCH --job-name NoiseDDM" >> jobfile.sh
-echo "#SBATCH --time 2:0:0" >> jobfile.sh
-echo "#SBATCH --cpus 12" >> jobfile.sh
-echo "#SBATCH --mem 2GB" >> jobfile.sh
-echo "#SBATCH --mail-type NONE" >> jobfile.sh
-echo "#SBATCH --output /home/mpib/kamp/LNDG/zurich_data/logs/slurm-%j.out" >> jobfile.sh
+echo "#PBS -N NoiseDDM" >> jobfile.pbs
+echo "#PBS -l walltime=2:0:0" >> jobfile.pbs
+echo "#PBS -l nodes=1:ppn=12" >> jobfile.pbs
+echo "#PBS -l mem=2gb" >> jobfile.pbs
+echo "#PBS -m n" >> jobfile.pbs
+echo "#PBS -j oe" >> jobfile.pbs
+echo "#PBS -o /home/mpib/kamp/LNDG/zurich_data/logs/" >> jobfile.pbs
 
-echo "cd $HOME/LNDG/zurich_data" >> jobfile.sh
-echo "module load conda" >> jobfile.sh
-echo "conda activate py3" >> jobfile.sh
+echo "cd $HOME/LNDG/zurich_data"
+echo "module load conda" >> jobfile.pbs
+echo "conda activate py3" >> jobfile.pbs
 
-echo "python ddm/fit_pyddm.py" >> jobfile.sh
-sbatch jobfile.sh
-rm jobfile.sh
+echo "python ddm/fit_pyddm.py" >> jobfile.pbs
+#qsub jobfile.pbs
+#rm jobfile.pbs

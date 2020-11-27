@@ -2,15 +2,11 @@ import scipy.io
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
 import ddm.models
 from itertools import product
-from IPython.display import display
 from ddm import Sample, Model, Fittable
 from ddm.functions import fit_adjust_model, display_model
 from ddm.models import NoiseConstant, BoundConstant, OverlayChain, OverlayNonDecision, OverlayPoissonMixture
-import ddm.plot
-from copy import deepcopy
 import os, sys 
 from multiprocessing import Pool
 from datetime import datetime
@@ -110,8 +106,8 @@ class fit_pyddm():
         # Computes fitting for each color in parallel
         with Pool(processes=cpus) as p: 
             white_results = p.starmap(self.fit_single_ddm, zip(self.SubjectList,['white']*len(self.SubjectList)))
-            blue_results = p.starmap(fit_single_ddm, zip(self.SubjectList,['blue']*len(self.SubjectList)))
-            pink_results = p.starmap(fit_single_ddm, zip(self.SubjectList,['pink']*len(self.SubjectList)))
+            blue_results = p.starmap(self.fit_single_ddm, zip(self.SubjectList,['blue']*len(self.SubjectList)))
+            pink_results = p.starmap(self.fit_single_ddm, zip(self.SubjectList,['pink']*len(self.SubjectList)))
         
         # Put results into one DataFrame
         results_list = []
@@ -135,7 +131,7 @@ class fit_pyddm():
         # Set up and fit ddm model
         color_model = self.setup_model()
         fit_adjust_model(sample=color_sample, model=color_model, verbose=False)
-        fit = {'drift':float(color_model.get_model_parameters()[0]), 'bound':float(color_model.get_model_parameters()[1]), 
+        fit = {'subject':subject, 'drift':float(color_model.get_model_parameters()[0]), 'bound':float(color_model.get_model_parameters()[1]), 
         'nondectime':float(color_model.get_model_parameters()[2]), 'fit':color_model.fitresult.value(), 
         'loss':color_model.fitresult.loss}
         return fit
@@ -168,5 +164,5 @@ class fit_pyddm():
 
 # Run Fitting
 if __name__ == "__main__":
-    ddm = fit_pyddm()
-    ddm.fit_group_ddm(cpus=12)
+    fitter = fit_pyddm()
+    fitter.fit_group_ddm(cpus=12)
